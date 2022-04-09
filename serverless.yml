@@ -1,0 +1,70 @@
+service: ec-category
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    EC_CATEGORY: ec_category
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:*
+
+functions:
+  getAllCategory:
+    handler: handler.getAllCategory
+    events:
+      - http:
+          method: get
+          path: getAllCategory
+  postCategory:
+    handler: handler.createCategory
+    events:
+      - http:
+          method: post
+          path: postCategory
+
+resources:
+  Resources:
+    CategoryListTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.EC_CATEGORY}
+        AttributeDefinitions:
+          - AttributeName: categoryId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: categoryId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+custom:
+  serverless-offline:
+    httpPort: 3003
+  dynamodb:
+    start:
+      port: 5005
+      inMemory: true
+      migrate: true
+    stages:
+      - dev
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
+  - serverless-plugin-typescript
