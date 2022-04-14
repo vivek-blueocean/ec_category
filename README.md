@@ -1,1 +1,1 @@
-# ec_category 123
+# ec_category
