@@ -4,11 +4,13 @@
   "description": "",
   "main": "handler.ts",
   "scripts": {
-    "start": "sls offline start"
+    "start": "sls offline start",
+    "build": "rimraf ./dist && tsc"
   },
   "dependencies": {
     "@types/node": "^17.0.23",
     "aws-lambda": "^1.0.7",
+    "rimraf": "^3.0.2",
     "serverless-plugin-typescript": "^2.1.2",
     "uuid": "^8.3.2"
   },
